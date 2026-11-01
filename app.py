@@ -87,6 +87,10 @@ def main():
                 st.error("Failed to fetch data. Please verify your ticker symbol and date range.")
                 return
 
+            # --- FIX: Flatten MultiIndex columns if returned by yfinance ---
+            if isinstance(df.columns, pd.MultiIndex):
+                df = df.xs(ticker, level=1, axis=1) if ticker in df.columns.levels[1] else df.droplevel(1, axis=1)
+
             cerebro = bt.Cerebro()
             cerebro.addstrategy(
                 MomentumTrailingSLStrategy,
